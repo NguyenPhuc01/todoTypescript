@@ -3,14 +3,12 @@ import "./App.css";
 import { Button, Col, Form, Input, Modal, Row } from "antd";
 import { v4 as uuidv4 } from "uuid";
 function App() {
-  const [todos, setTodos] = useState<any[]>([]);
-  const [data, setData] = useState<any[]>([]);
+  const [dataLocal, setDataLocal] = useState<any[]>([]);
   const [form]: any = Form.useForm();
   const [formChangeTodo]: any = Form.useForm();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [idTodo, setIdTodo] = useState<string>("");
-  const getTodo: any = localStorage.getItem("todo");
-  const convert = JSON.parse(getTodo);
+
   const handleOk = () => {
     setIsModalOpen(false);
   };
@@ -26,23 +24,25 @@ function App() {
       todo: values.todo,
       id: uuidv4(),
     };
-    setTodos([...todos, data]);
-    localStorage.setItem("todo", JSON.stringify([...todos, data]));
     form.setFieldValue();
+
+    localStorage.setItem("todo", JSON.stringify([...dataLocal, data]));
+    setDataLocal((prevData) => [...prevData, data]);
   };
   const onFinishChangeTodo = (values: { todoChange: String }) => {
-    const todoUpdate = convert.map((e: any) =>
+    const todoUpdate = dataLocal.map((e: any) =>
       e.id === idTodo ? { ...e, todo: values.todoChange } : e
     );
     setIsModalOpen(false);
-    setTodos(todoUpdate);
     localStorage.setItem("todo", JSON.stringify(todoUpdate));
+    setDataLocal(todoUpdate);
+    form.setFieldValue();
   };
 
   const handleRemove = (id: string) => {
-    const todoAfterRemove = convert.filter((e: any) => e.id !== id);
-    setTodos(todoAfterRemove);
+    const todoAfterRemove = dataLocal.filter((e: any) => e.id !== id);
     localStorage.setItem("todo", JSON.stringify(todoAfterRemove));
+    setDataLocal(todoAfterRemove);
   };
 
   const handleUpdateTodo = (todo: { todo: string; id: string }) => {
@@ -50,14 +50,15 @@ function App() {
     formChangeTodo.setFieldsValue({
       todoChange: todo.todo,
     });
-
     setIdTodo(todo.id);
   };
+
   useEffect(() => {
-    const getTodo: any = localStorage.getItem("todo");
+    const getTodo: string = window.localStorage.getItem("todo")!;
     const convert = JSON.parse(getTodo);
-    setData(convert);
-  }, [todos]);
+    setDataLocal(convert);
+  }, []);
+
   return (
     <div className="App " style={{ padding: "0px 20px" }}>
       <Row>
@@ -87,8 +88,8 @@ function App() {
               </Form.Item>
             </Form>
           </div>
-          {data &&
-            data.map((todo) => {
+          {dataLocal &&
+            dataLocal.map((todo) => {
               return (
                 <div
                   key={todo.id}
