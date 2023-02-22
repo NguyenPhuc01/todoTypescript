@@ -25,7 +25,6 @@ function App() {
       id: uuidv4(),
     };
     form.setFieldValue();
-
     localStorage.setItem("todo", JSON.stringify([...dataLocal, data]));
     setDataLocal((prevData) => [...prevData, data]);
   };
@@ -56,7 +55,7 @@ function App() {
   useEffect(() => {
     const getTodo: string = window.localStorage.getItem("todo")!;
     const convert = JSON.parse(getTodo);
-    setDataLocal(convert);
+    setDataLocal(convert || []);
   }, []);
 
   return (
@@ -131,13 +130,7 @@ function App() {
               onFinish={onFinishChangeTodo}
               autoComplete="off"
             >
-              <Form.Item
-                label="todoChange"
-                name="todoChange"
-                rules={[
-                  { required: true, message: "Please input your todoChange!" },
-                ]}
-              >
+              <Form.Item label="todoChange" name="todoChange">
                 <Input />
               </Form.Item>
 
